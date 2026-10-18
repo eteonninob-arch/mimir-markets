@@ -1,6 +1,7 @@
 # Agent key and tool incident runbook
 
 Every switch, where it is enforced and how it rolls back: [`INCIDENT_KILL_SWITCHES.md`](INCIDENT_KILL_SWITCHES.md). Switches take only the value `1`.
+For common contributor errors, runtime fixes, and Soroban contract error code mappings, see [`TROUBLESHOOTING.md`](TROUBLESHOOTING.md).
 
 1. Pause only the affected surface: `MIMIR_PAUSE_RESEARCH`, `MIMIR_PAUSE_X402_BUYING`, `MIMIR_PAUSE_COPY_EXECUTION`, or funded actions. For one actor use `RESEARCH_PAUSED_AGENT_IDS`, `MIMIR_PAUSED_X402_BUYERS`, or the wallet policy's `paused` bit. Withdrawal/read paths stay available.
 2. Owner revokes the compromised operator immediately. Nonces and outstanding sessions are invalidated; do not rotate from the operator key.
