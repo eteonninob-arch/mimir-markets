@@ -1,4 +1,5 @@
 # Agent key and tool incident runbook
+Every switch, where it is enforced and how it rolls back: [`INCIDENT_KILL_SWITCHES.md`](INCIDENT_KILL_SWITCHES.md). Switches take only the value `1.
 
 Every switch, where it is enforced and how it rolls back: [`INCIDENT_KILL_SWITCHES.md`](INCIDENT_KILL_SWITCHES.md). Switches take only the value `1`.
 For common contributor errors, runtime fixes, and Soroban contract error code mappings, see [`TROUBLESHOOTING.md`](TROUBLESHOOTING.md).
@@ -31,25 +32,18 @@ attempt. To roll back this change, disable `MIMIR_PAUSE_ORACLE_SETTLEMENT` only
 after the RPC and oracle balance are healthy, or deploy the previous worker; no
 contract migration or ledger reversal is required.
 
-## Oracle settlement transaction incident
+### Dry-running a settlement decision
 
-`resolve_claim` is the only funded write retried by the oracle. The worker classifies
-failures before retrying:
+To inspect what the oracle would decide for a claim without signing anything, run:
 
-- malformed verdict/input: aborts; it is never converted into a refund or replayed;
-- stale / `NotYetExpired` / inactive snapshot: refreshes Soroban state and defers;
-- duplicate / already resolved: no-op, because the chain is already final;
-- cancelled: no-op, because cancelled claims are refunded by the contract;
-- `MIMIR_PAUSE_ORACLE_SETTLEMENT=1`: defers before evidence, LLM, or signing;
-- dependency / RPC / timeout failures: bounded exponential retry, then defer to the
-  next poll. The worker never retries from a stale snapshot.
+```
+npx tsx scripts/oracle-dry-run.ts <claimId>
+```
 
-If a submission outcome is ambiguous, reconcile the retained transaction hash and
-fresh `get_claim` state before any manual action. Do not issue a manual payout,
-edit the read index, or delete a claim to make a retry appear successful. Soroban
-state is authoritative; a later poll is the rollback mechanism for a deferred
-attempt. To roll back this change, disable `MIMIR_PAUSE_ORACLE_SETTLEMENT` only
-after the RPC and oracle balance are healthy, or deploy the previous worker; no
-contract migration or ledger reversal is required.
+The script reuses the same evaluation pipeline as the worker (evidence fetch,
+`evaluateClaim`, confidence tiers, unresolvable policy and optional council voting)
+and prints the evidence hash, verdict, tier, confidence and the transaction it
+would send. It never loads a signer and never builds a transaction for submission:
+passing `--submit` is refused. It needs only a public testnet RPC URL and an LLM key.
 
 Compromise never permits editing historical owner-fee attribution. A revoked agent remains terminal; re-admission is a new registration.
