@@ -32,6 +32,25 @@ export {
   type CopyFeedbackStatus,
 };
 
+export type CopyState = "idle" | "success" | "error";
+
+export function getAddressCopyFeedback(
+  state: CopyState,
+  options?: { label?: string }
+): string {
+  if (state === "success") {
+    return options?.label
+      ? `${options.label} address copied`
+      : "Address copied";
+  }
+  if (state === "error") {
+    return options?.label
+      ? `Failed to copy ${options.label} address`
+      : "Failed to copy address";
+  }
+  return "";
+}
+
 export function AddressChip({
   address,
   className = "",
@@ -109,6 +128,10 @@ export function AddressChip({
           ? <Check className="h-3 w-3 text-pv-emerald" aria-hidden />
           : <Copy className="h-3 w-3 opacity-60" aria-hidden />}
       </button>
+      <span role="status" aria-live="polite" className="sr-only">
+        {getAddressCopyFeedback(copyState, { label })}
+      </span>
+
       <a
         href={getExplorerAddressUrl(address)}
         target="_blank"
