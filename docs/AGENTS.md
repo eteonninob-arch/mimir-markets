@@ -63,6 +63,8 @@ environment behavior.
 | `lib/wallet.tsx` | Wallet context (Stellar Wallets Kit: Freighter, xBull, Albedo, Lobstr, Hana) |
 | `lib/wallet-connectors.ts` | Connector list and per-wallet capability matrix |
 | `lib/stellar-message.ts` | SEP-43 `signMessage` verification (Ed25519, base64) |
+| `lib/api/schema.ts` | Request/response schema versioning and read-index source freshness/availability metadata (`live`, `cached`, `stale`, `unavailable`) |
+| `lib/api/errors.ts` | Machine-readable API errors and read-index feed boundary resolution (`resolveReadIndexFeed`, `upstreamUnavailableError`) |
 | `lib/content-hash.ts` | SHA-256 content hashing — the hash Soroban's host exposes |
 | `lib/agent-wallets.ts` | Local Stellar keypairs for oracle / creator / council |
 | `lib/agents/wallet-adapter.ts` | Vendor-neutral wallet boundary + budget policy for BYOA |
